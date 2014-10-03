@@ -5,6 +5,22 @@
 #include <stdlib.h>
 #include <unistd.h>
 #define SIZE 1024
+#define MAXLINE 1024
+
+/* function returning the max between two numbers */
+int max(int num1, int num2) 
+{
+   /* local variable declaration */
+   int result;
+ 
+   if (num1 > num2)
+      result = num1;
+   else
+      result = num2;
+ 
+   return result; 
+}
+
 int main()
 {
     int option = 0;
@@ -53,10 +69,33 @@ int main()
                else // Parent Process code
                {
                    close(pfd[1]);
-                   while ((nread = read(pfd[0], buf, SIZE)) != 0)
-                             printf("CHILD SIGNAL: %s\n", buf);
-                   close(pfd[0]);
-//dup2(pfd[1],1);
+
+                   //Select on pfd[0] and stdin to see if someone has typed on main terminal
+                   fd_set rset;
+                   int maxfdp1;
+                   FD_ZERO(&rset); 
+                   while(1) 
+                   {
+                       FD_SET(STDIN_FILENO, &rset);// Stdin
+                       FD_SET(pfd[0], &rset); // Pipe
+                       maxfdp1 = max(STDIN_FILENO, pfd[0]) + 1;
+                       select(maxfdp1, &rset, NULL, NULL, NULL);
+                       if (FD_ISSET(STDIN_FILENO, &rset))  /* socket is readable */
+                       {
+                           char sendline[MAXLINE+1];
+                           char *temp = fgets(sendline, MAXLINE, stdin);
+                           printf("\n Please use xterm to enter input");
+                         //  char *temp = fgets(sendline, MAXLINE, STDIN_FILENO);
+                       //    if(Fgets(sendline, MAXLINE, STDIN_FILENO)
+                       }
+                       else if(FD_ISSET(pfd[0], &rset))
+                       {
+                           while ((nread = read(pfd[0], buf, SIZE)) != 0)
+                               printf("CHILD SIGNAL: %s\n", buf);
+                           break;
+                       }
+                    }
+                    close(pfd[0]);
                    // Read from the pipe
                }
 
