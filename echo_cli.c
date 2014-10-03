@@ -1,5 +1,14 @@
 #include	"unp.h"
 
+// Global Variables
+int pipefd;
+void signal_callback_handler(int signum)
+{
+    char error_msg[] = "Kill signal detected!";
+    if (sizeof(error_msg) != (write(pipefd, error_msg,sizeof(error_msg)) ))
+        exit(-1);
+    exit(1);
+}
 int
 main(int argc, char **argv)
 {
@@ -8,6 +17,11 @@ main(int argc, char **argv)
 
 	if (argc != 3) //Third argument for socket
 		err_quit("usage: tcpcli <IPaddress>");
+
+        pipefd = atoi(argv[2]);
+
+         // Register signal and signal handler
+        signal(SIGINT, signal_callback_handler);
 
 	if ( (sockfd = socket(AF_INET, SOCK_STREAM,0 /*protocol*/)) < 0)
         {
@@ -44,3 +58,4 @@ main(int argc, char **argv)
         // end error on the other side
 	exit(0);
 }
+
