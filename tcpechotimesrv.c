@@ -1,5 +1,6 @@
 #include "unp.h"
 #include "ports.h"
+#include <time.h>
 
 static void * 
 echo_child_function(void *arg)
@@ -15,7 +16,36 @@ echo_child_function(void *arg)
 	return(NULL);
 }
 
+static void * 
+time_child_function(void *arg)
+{
+	int connfd;
+	connfd = *((int *) arg);
+//	free(arg);
+        printf("In time thread\n");
 
+// Select function for timeout and sleep
+//
+//
+//
+// If timeout
+    time_t ticks = time(null);
+    snprintf(buff, sizeof(buff), "%.24s\r\n",ctime(&ticks));
+    if (write(connfd, buff, strlen(buff)) != strlen(buff))
+    {
+       err_sys("Time thread write error");
+       return;
+    }
+    if(close(connfd) == -1) 
+    {
+        err_sys("Time thread closing socket error");
+        return;
+    }
+
+	close(connfd);			/* done with connected socket */
+        printf("Client terminated successfully");
+	return(NULL);
+}
 int
 main(int argc, char **argv)
 {
@@ -123,6 +153,16 @@ main(int argc, char **argv)
                 }
 
 		connfd = Accept(listenfdecho, (SA *) &cliaddr, &clilen); // JHOL
+                char*  ptr;
+                if ( (ptr = sock_ntop(sa, salen)) == NULL)
+                {
+                    perror("Sock_ntop error");
+                    exit(EXIT_FAILURE);
+                }
+                else
+                {
+                    printf("Connection from %s\n", ptr);
+                }
             
                 res = pthread_create(&thread_echo, &attr, echo_child_function, (void*)&connfd);
                 if (res != 0) 
@@ -134,6 +174,40 @@ main(int argc, char **argv)
              // Code for handling time server
             else if(FD_ISSET(listenfdtime, &rset)) // Code for echo server
             {
+                int res, err;
+                pthread_attr_t attr;
+                pthread_t thread_echo;
+                res = pthread_attr_init(&attr);
+                if (res != 0) 
+                {
+                    perror("Attribute init failed - Time server thread");
+                    exit(EXIT_FAILURE);
+                }
+                res = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+                if (res != 0) 
+                {
+                    perror("Setting detached state failed - Time server thread");
+                    exit(EXIT_FAILURE);
+                }
+
+		connfd = Accept(listenfdtime, (SA *) &cliaddr, &clilen); // JHOL
+                char*  ptr;
+                if ( (ptr = sock_ntop(sa, salen)) == NULL)
+                {
+                    perror("Sock_ntop error");
+                    exit(EXIT_FAILURE);
+                }
+                else
+                {
+                    printf("Connection from %s\n", ptr);
+                }
+            
+                res = pthread_create(&thread_echo, &attr, time_child_function, (void*)&connfd);
+                if (res != 0) 
+                {
+                    perror("Creation of Time server thread failed");
+                    exit(EXIT_FAILURE);
+                }
 
             }
             else

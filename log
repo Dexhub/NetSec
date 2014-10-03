@@ -1,0 +1,23 @@
+> Daytime client and daytime server
+
+
+
+> Use select
+
+
+> Sleep on daytime client => 5 seconds
+
+> Select on connfd for daytime to detect client close
+
+
+
+
+
+
+-> Client
+gethostby name and addr
+
+> TEst clientexec and time execs based on host name and ip address
+
+-> server
+->
