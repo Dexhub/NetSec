@@ -12,18 +12,42 @@ int max(int num1, int num2)
 {
    /* local variable declaration */
    int result;
- 
    if (num1 > num2)
       result = num1;
    else
       result = num2;
- 
    return result; 
 }
 
 int main()
 {
     int option = 0;
+    struct hostent *he;
+    struct in_addr **addr_list;
+
+ //   if (argc != 2) //Second argument for socket
+//       err_quit("usage: client <IPaddress/Domainaddress>");
+
+    //Get host name:
+  //  if ( (he = gethostbyname( argv[1] ) ) == NULL)
+  //  {
+
+   // }
+    // false case -  IP Address is supplied
+  //  char * ip = 
+
+    // print information about this host:
+//    printf("Official name is: %s\n", he->h_name);
+//    printf("    IP addresses: ");
+//    addr_list = (struct in_addr **)he->h_addr_list;
+//    for(i = 0; addr_list[i] != NULL; i++) {
+//        printf("%s ", inet_ntoa(*addr_list[i]));
+//    }
+//    printf("\n");
+//
+//    return 0;
+//}
+
     while(1)
     {
         printf("\n Choose from the following options");
@@ -85,8 +109,6 @@ int main()
                            char sendline[MAXLINE+1];
                            char *temp = fgets(sendline, MAXLINE, stdin);
                            printf("\n Please use xterm to enter input");
-                         //  char *temp = fgets(sendline, MAXLINE, STDIN_FILENO);
-                       //    if(Fgets(sendline, MAXLINE, STDIN_FILENO)
                        }
                        else if(FD_ISSET(pfd[0], &rset))
                        {

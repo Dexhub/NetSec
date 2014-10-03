@@ -1,4 +1,5 @@
 #include	"unp.h"
+#include "ports.h"
 
 // Global Variables
 int pipefd;
@@ -34,7 +35,7 @@ main(int argc, char **argv)
 
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
-	servaddr.sin_port = htons(SERV_PORT);
+	servaddr.sin_port = htons(ECHO_PORT);
 	Inet_pton(AF_INET, argv[1], &servaddr.sin_addr); //TODO This is gonna change
 
         if (connect(sockfd, (SA *)&servaddr, sizeof(servaddr)) < 0)
