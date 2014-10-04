@@ -12,15 +12,32 @@ int main(int argc, char *argv[])
     int option = 0;
     struct hostent *he;
     struct in_addr **addr_list;
+    char dest_addr[SIZE];
+    int s;
     
     if (argc != 2) //Second argument for socket
         err_quit("usage: client <IPaddress/Domainaddress>\n");
     
     //Get host name:
-    if ( (he = gethostbyname( argv[1] ) ) == NULL)
+    struct in_addr ipv4addr;
+
+    s = inet_pton(AF_INET, argv[1], &ipv4addr);
+
+    if(s > 0)
+        he = gethostbyaddr(&ipv4addr, sizeof(ipv4addr), AF_INET);
+    else
+        he = gethostbyname(argv[1]);
+
+    if (he != NULL)
     {
-        printf("Error calling gethostbyname!\n");
-        return 1;
+        printf("HEllo");
+        if (inet_ntop(AF_INET, he->h_addr, dest_addr, sizeof(dest_addr)) == NULL)
+            he = NULL;
+    }
+    if (he == NULL)
+    {
+        printf("Invalid Server Address\n");
+        exit(0);
     }
 
     // print information about this host:
