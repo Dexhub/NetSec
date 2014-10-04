@@ -91,6 +91,23 @@ main(int argc, char **argv)
              exit(1);
          }
 
+       int option = 1; 
+        if(setsockopt(listenfdtime,SOL_SOCKET, SO_REUSEADDR, &option,sizeof(option)) < 0)
+        {
+            printf("setsockopt on time port failed\n");
+            close(listenfdtime);
+            exit(2);
+        }
+       
+        option = 1; 
+        
+        if(setsockopt(listenfdecho,SOL_SOCKET, SO_REUSEADDR , &option,sizeof(option)) < 0)
+        {
+            printf("setsockopt on echo port failed\n");
+            close(listenfdecho);
+            exit(2);
+        }
+
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family      = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -99,7 +116,7 @@ main(int argc, char **argv)
         if (bind(listenfdecho, (SA *)&servaddr, sizeof(servaddr)) < 0)
         {
             printf("Echo server Bind Error\n");
-             exit(2);
+            exit(2);
         }
 
 	bzero(&servaddr, sizeof(servaddr));
@@ -114,21 +131,6 @@ main(int argc, char **argv)
             exit(2);
         }
         
-       int option; 
-        if(setsockopt(listenfdtime,SOL_SOCKET, SO_REUSEADDR,(char*)&option,sizeof(option)) < 0)
-        {
-            printf("setsockopt on time port failed\n");
-            close(listenfdtime);
-            exit(2);
-        }
-        
-        if(setsockopt(listenfdecho,SOL_SOCKET, SO_REUSEADDR ,(char*)&option,sizeof(option)) < 0)
-        {
-            printf("setsockopt on echo port failed\n");
-            close(listenfdecho);
-            exit(2);
-        }
-
         int backlog = LISTENQ;
         char *ptr;
 	if ( (ptr = getenv("LISTENQ")) != NULL)
