@@ -1,5 +1,5 @@
-#include	"unp.h"
-#include "ports.h"
+#include "unp.h"
+#include "globals.h"
 
 int
 main(int argc, char **argv)

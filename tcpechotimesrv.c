@@ -1,5 +1,5 @@
 #include "unp.h"
-#include "ports.h"
+#include "globals.h"
 #include <time.h>
 
 static void * 
@@ -7,13 +7,12 @@ echo_child_function(void *arg)
 {
 	int connfd;
 	connfd = *((int *) arg);
-//	free(arg);
         printf("In echo thread\n");
-//	Pthread_detach(pthread_self());
 	str_echo(connfd);		/* same function as before */
 	close(connfd);			/* done with connected socket */
         printf("Client terminated successfully");
-	return(NULL);
+        pthread_exit(arg);
+        exit(0);
 }
 
 static void * 
@@ -21,31 +20,53 @@ time_child_function(void *arg)
 {
 	int connfd;
 	connfd = *((int *) arg);
-//	free(arg);
         printf("In time thread\n");
 
-// Select function for timeout and sleep
-//
-//
-//
-// If timeout
-    time_t ticks = time(null);
-    snprintf(buff, sizeof(buff), "%.24s\r\n",ctime(&ticks));
-    if (write(connfd, buff, strlen(buff)) != strlen(buff))
-    {
-       err_sys("Time thread write error");
-       return;
-    }
-    if(close(connfd) == -1) 
-    {
-        err_sys("Time thread closing socket error");
-        return;
-    }
+        fd_set rset;
+        FD_ZERO(&rset);
+        struct timeval timeout;
 
-	close(connfd);			/* done with connected socket */
-        printf("Client terminated successfully");
-	return(NULL);
+        char buff[MAXLINE];
+        timeout.tv_sec = 0;
+
+        while(1)
+        {
+            FD_SET(connfd,&rset);
+            int rc = select(connfd+1, &rset, NULL, NULL, &timeout);
+            if (rc == -1)
+            {
+                perror("select failed");
+                return;
+            }
+
+            if(FD_ISSET(connfd, &rset))
+            {
+                printf("Time client terminated successfully\n");
+                if(close(connfd) == -1) 
+                {
+                    err_sys("Time thread closing socket error");
+                }
+                FD_CLR(connfd, &rset);
+                pthread_exit(arg);
+                exit(0);
+            }
+            else  // Timeout
+            {
+                time_t ticks = time(NULL);
+                snprintf(buff, sizeof(buff), "%.24s\r\n",ctime(&ticks));
+                if (write(connfd, buff, strlen(buff)) != strlen(buff))
+                {
+                    err_sys("Time thread write error");
+                    return;
+                }
+                timeout.tv_sec = 5;
+
+            }
+
+        }
 }
+
+
 int
 main(int argc, char **argv)
 {
@@ -154,7 +175,7 @@ main(int argc, char **argv)
 
 		connfd = Accept(listenfdecho, (SA *) &cliaddr, &clilen); // JHOL
                 char*  ptr;
-                if ( (ptr = sock_ntop(sa, salen)) == NULL)
+                if ( (ptr = sock_ntop((SA *) &cliaddr, clilen) == NULL) )
                 {
                     perror("Sock_ntop error");
                     exit(EXIT_FAILURE);
@@ -172,7 +193,7 @@ main(int argc, char **argv)
                 }
             }
              // Code for handling time server
-            else if(FD_ISSET(listenfdtime, &rset)) // Code for echo server
+            else if(FD_ISSET(listenfdtime, &rset)) // Code for time server
             {
                 int res, err;
                 pthread_attr_t attr;
@@ -192,7 +213,7 @@ main(int argc, char **argv)
 
 		connfd = Accept(listenfdtime, (SA *) &cliaddr, &clilen); // JHOL
                 char*  ptr;
-                if ( (ptr = sock_ntop(sa, salen)) == NULL)
+                if ( (ptr = sock_ntop((SA *) &cliaddr, clilen) == NULL))
                 {
                     perror("Sock_ntop error");
                     exit(EXIT_FAILURE);
