@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
                     {
                         while ((nread = read(pfd[0], buf, SIZE)) != 0)
                             printf("CHILD SIGNAL: %s\n", buf);
+                        wait(NULL);
                         break;
                     }
                  }
@@ -167,6 +168,7 @@ int main(int argc, char *argv[])
                     {
                         while ((nread = read(pfd[0], buf, SIZE)) != 0)
                             printf("CHILD SIGNAL: %s\n", buf);
+                        wait(NULL);
                         break;
                     }
                  }
