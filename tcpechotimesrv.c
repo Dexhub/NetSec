@@ -77,6 +77,7 @@ main(int argc, char **argv)
 	pid_t childpid;
 	socklen_t clilen;
 	struct sockaddr_in cliaddr, servaddr;
+        printf("\n-------------Starting Server-------------\n");
 
          if ( (listenfdecho = socket(AF_INET, SOCK_STREAM, 0/* protocol */)) < 0)
          {

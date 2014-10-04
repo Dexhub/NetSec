@@ -7,39 +7,38 @@
 #include "globals.h"
 #include "unp.h"
 
-int main()
+int main(int argc, char *argv[])
 {
     int option = 0;
     struct hostent *he;
     struct in_addr **addr_list;
     
-//    if (argc != 2) //Second argument for socket
-//        err_quit("usage: client <IPaddress/Domainaddress>");
+    if (argc != 2) //Second argument for socket
+        err_quit("usage: client <IPaddress/Domainaddress>\n");
     
     //Get host name:
-    //if ( (he = gethostbyname( argv[1] ) ) == NULL)
-  //  {
-
-   // }
-    // false case -  IP Address is supplied
-  //  char * ip = 
+    if ( (he = gethostbyname( argv[1] ) ) == NULL)
+    {
+         herror("gethostbyname");
+         return 1;
+    }
 
     // print information about this host:
-//    printf("Official name is: %s\n", he->h_name);
-//    printf("    IP addresses: ");
-//    addr_list = (struct in_addr **)he->h_addr_list;
-//    for(i = 0; addr_list[i] != NULL; i++) {
-//        printf("%s ", inet_ntoa(*addr_list[i]));
-//    }
-//    printf("\n");
-//
-//    return 0;
-//}
+    printf("Host name is: %s\n", he->h_name);
+    addr_list = (struct in_addr **)he->h_addr_list;
+    printf("IP Address: %s \n", inet_ntoa(*addr_list[0]));
 
+
+
+
+    printf("-------------- Client Started ------------------------\n");
     while(1)
     {
+        printf("--------------------------------------------------\n");
         printf("\n Choose from the following options\n");
         printf("\n 1: Echo Client\n 2: Daytime Client\n 3:Exit\n");
+        printf("--------------------------------------------------\n");
+        printf("Selection : ");
         if( scanf("%d",&option) != 1)
         {
             printf("Invalid option entererd\n");
@@ -69,7 +68,7 @@ int main()
                 /* child */
                 close(pfd[0]);
                 int n = sprintf(pfd_buffer, "%d",pfd[1]); 
-                execlp("xterm","xterm", "-e","./echo_cli","127.0.0.1",pfd_buffer, (char*)0);
+                execlp("xterm","xterm", "-e","./echo_cli", inet_ntoa(*addr_list[0]), pfd_buffer, (char*)0);
                 close(pfd[1]);
                 //  close(pfd[1]); // After child exits -> add in signal handler for ctrl+c
 
@@ -127,7 +126,7 @@ int main()
                 /* child */
                 close(pfd[0]);
                 int n = sprintf(pfd_buffer, "%d",pfd[1]); 
-                execlp("xterm","xterm", "-e","./time_cli","127.0.0.1",pfd_buffer, (char*)0);
+                execlp("xterm","xterm", "-e","./time_cli", inet_ntoa(*addr_list[0]), pfd_buffer, (char*)0);
                 close(pfd[1]);
 
             }
