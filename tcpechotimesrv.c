@@ -1,6 +1,9 @@
 #include "unp.h"
-#include "globals.h"
+#include "unpthread.h"
 #include <time.h>
+#include "globals.h"
+
+
 
 static void * 
 echo_child_function(void *arg)
@@ -35,7 +38,7 @@ time_child_function(void *arg)
             int rc = select(connfd+1, &rset, NULL, NULL, &timeout);
             if (rc == -1)
             {
-                perror("select failed");
+                perror("select failed\n");
                 return;
             }
 
@@ -44,7 +47,7 @@ time_child_function(void *arg)
                 printf("Time client terminated successfully\n");
                 if(close(connfd) == -1) 
                 {
-                    err_sys("Time thread closing socket error");
+                    err_sys("Time thread closing socket error\n");
                 }
                 FD_CLR(connfd, &rset);
                 pthread_exit(arg);
@@ -56,7 +59,7 @@ time_child_function(void *arg)
                 snprintf(buff, sizeof(buff), "%.24s\r\n",ctime(&ticks));
                 if (write(connfd, buff, strlen(buff)) != strlen(buff))
                 {
-                    err_sys("Time thread write error");
+                    err_sys("Time thread write error\n");
                     return;
                 }
                 timeout.tv_sec = 5;
@@ -77,13 +80,13 @@ main(int argc, char **argv)
 
          if ( (listenfdecho = socket(AF_INET, SOCK_STREAM, 0/* protocol */)) < 0)
          {
-             printf("Error in creating Echo Socket");
+             printf("Error in creating Echo Socket\n");
              exit(1);
          }
          
          if ( (listenfdtime = socket(AF_INET, SOCK_STREAM, 0/* protocol */)) < 0)
          {
-             printf("Error in creating Time Socket");
+             printf("Error in creating Time Socket\n");
              exit(1);
          }
 
@@ -94,7 +97,7 @@ main(int argc, char **argv)
         
         if (bind(listenfdecho, (SA *)&servaddr, sizeof(servaddr)) < 0)
         {
-            printf("Echo server Bind Error");
+            printf("Echo server Bind Error\n");
              exit(2);
         }
 
@@ -102,22 +105,23 @@ main(int argc, char **argv)
 	servaddr.sin_family      = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr.sin_port = htons(TIME_PORT);
+        printf("Server is up!!\n");
         
         if (bind(listenfdtime, (SA *)&servaddr, sizeof(servaddr)) < 0)
         {
-            printf("Time server Bind Error");
+            printf("Time server Bind Error\n");
             exit(2);
         }
         
        int option; 
-        if(setsockopt(listenfdtime,SOL_SOCKET,(SO_REUSEPORT | SO_REUSEADDR),(char*)&option,sizeof(option)) < 0)
+        if(setsockopt(listenfdtime,SOL_SOCKET, SO_REUSEADDR,(char*)&option,sizeof(option)) < 0)
         {
             printf("setsockopt on time port failed\n");
             close(listenfdtime);
             exit(2);
         }
         
-        if(setsockopt(listenfdecho,SOL_SOCKET,(SO_REUSEPORT | SO_REUSEADDR),(char*)&option,sizeof(option)) < 0)
+        if(setsockopt(listenfdecho,SOL_SOCKET, SO_REUSEADDR ,(char*)&option,sizeof(option)) < 0)
         {
             printf("setsockopt on echo port failed\n");
             close(listenfdecho);
@@ -133,13 +137,13 @@ main(int argc, char **argv)
 
 	if (listen(listenfdecho, backlog) < 0)
         {
-            err_sys("listen echo error");
+            err_sys("listen echo error\n");
             exit(3);
         }
 
 	if (listen(listenfdtime, backlog) < 0)
         {
-            err_sys("listen time error");
+            err_sys("listen time error\n");
             exit(3);
         }
 
@@ -163,13 +167,13 @@ main(int argc, char **argv)
                 res = pthread_attr_init(&attr);
                 if (res != 0) 
                 {
-                    perror("Attribute init failed - Echo server thread");
+                    perror("Attribute init failed - Echo server thread\n");
                     exit(EXIT_FAILURE);
                 }
                 res = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
                 if (res != 0) 
                 {
-                    perror("Setting detached state failed - Echo server thread");
+                    perror("Setting detached state failed - Echo server thread\n");
                     exit(EXIT_FAILURE);
                 }
 
@@ -177,7 +181,7 @@ main(int argc, char **argv)
                 char*  ptr;
                 if ( (ptr = sock_ntop((SA *) &cliaddr, clilen) == NULL) )
                 {
-                    perror("Sock_ntop error");
+                    perror("Sock_ntop error\n");
                     exit(EXIT_FAILURE);
                 }
                 else
@@ -188,7 +192,7 @@ main(int argc, char **argv)
                 res = pthread_create(&thread_echo, &attr, echo_child_function, (void*)&connfd);
                 if (res != 0) 
                 {
-                    perror("Creation of echo server thread failed");
+                    perror("Creation of echo server thread failed\n");
                     exit(EXIT_FAILURE);
                 }
             }
@@ -201,13 +205,13 @@ main(int argc, char **argv)
                 res = pthread_attr_init(&attr);
                 if (res != 0) 
                 {
-                    perror("Attribute init failed - Time server thread");
+                    perror("Attribute init failed - Time server thread\n");
                     exit(EXIT_FAILURE);
                 }
                 res = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
                 if (res != 0) 
                 {
-                    perror("Setting detached state failed - Time server thread");
+                    perror("Setting detached state failed - Time server thread\n");
                     exit(EXIT_FAILURE);
                 }
 
@@ -215,7 +219,7 @@ main(int argc, char **argv)
                 char*  ptr;
                 if ( (ptr = sock_ntop((SA *) &cliaddr, clilen) == NULL))
                 {
-                    perror("Sock_ntop error");
+                    perror("Sock_ntop error\n");
                     exit(EXIT_FAILURE);
                 }
                 else
@@ -226,14 +230,14 @@ main(int argc, char **argv)
                 res = pthread_create(&thread_echo, &attr, time_child_function, (void*)&connfd);
                 if (res != 0) 
                 {
-                    perror("Creation of Time server thread failed");
+                    perror("Creation of Time server thread failed\n");
                     exit(EXIT_FAILURE);
                 }
 
             }
             else
             {
-                printf("Error in Select");
+                printf("Error in Select\n");
                 exit(-1);
             }
         
