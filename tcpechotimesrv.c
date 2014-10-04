@@ -4,6 +4,25 @@
 #include "globals.h"
 
 
+int 
+wrap_str_echo(int sockfd)
+{
+	ssize_t		n;
+	char		buf[MAXLINE];
+
+again:
+	while ( (n = Readline(sockfd, buf, MAXLINE)) > 0)
+		Writen(sockfd, buf, n);
+
+	if (n < 0 && errno == EINTR)
+		goto again;
+	else if (n < 0)
+        {
+		printf("Client exited abruptly");
+                return -1;
+        }
+        return 0;
+}
 
 static void * 
 echo_child_function(void *arg)
@@ -11,9 +30,9 @@ echo_child_function(void *arg)
 	int connfd;
 	connfd = *((int *) arg);
         printf("Fullfiling echo request\n");
-	str_echo(connfd);		/* same function as before */
+	if(wrap_str_echo(connfd) == 0)
+            printf("Echo client terminated successfully\n");
 	close(connfd);			/* done with connected socket */
-        printf("Echo client terminated successfully\n");
         pthread_exit(arg);
         exit(0);
 }
