@@ -165,6 +165,7 @@ main(int argc, char **argv)
                 pthread_attr_t attr;
                 pthread_t thread_echo;
                 res = pthread_attr_init(&attr);
+                char strbuf[SIZE];
                 if (res != 0) 
                 {
                     perror("Attribute init failed - Echo server thread\n");
@@ -179,15 +180,9 @@ main(int argc, char **argv)
 
 		connfd = Accept(listenfdecho, (SA *) &cliaddr, &clilen); // JHOL
                 char*  ptr;
-                if ( (ptr = sock_ntop((SA *) &cliaddr, clilen) == NULL) )
-                {
-                    perror("Sock_ntop error\n");
-                    exit(EXIT_FAILURE);
-                }
-                else
-                {
-                    printf("Connection from %s\n", ptr);
-                }
+                
+                Inet_ntop(AF_INET, &cliaddr.sin_addr, strbuf, sizeof(strbuf));
+                printf("Connection from %s\n", strbuf);
             
                 res = pthread_create(&thread_echo, &attr, echo_child_function, (void*)&connfd);
                 if (res != 0) 
@@ -202,7 +197,9 @@ main(int argc, char **argv)
                 int res, err;
                 pthread_attr_t attr;
                 pthread_t thread_echo;
+                char strbuf[SIZE];
                 res = pthread_attr_init(&attr);
+
                 if (res != 0) 
                 {
                     perror("Attribute init failed - Time server thread\n");
@@ -215,17 +212,10 @@ main(int argc, char **argv)
                     exit(EXIT_FAILURE);
                 }
 
-		connfd = Accept(listenfdtime, (SA *) &cliaddr, &clilen); // JHOL
-                char*  ptr;
-                if ( (ptr = sock_ntop((SA *) &cliaddr, clilen) == NULL))
-                {
-                    perror("Sock_ntop error\n");
-                    exit(EXIT_FAILURE);
-                }
-                else
-                {
-                    printf("Connection from %s\n", ptr);
-                }
+		connfd = Accept(listenfdtime, (SA *) &cliaddr, &clilen);
+
+                Inet_ntop(AF_INET, &cliaddr.sin_addr, strbuf, sizeof(strbuf));
+                printf("Connection from %s\n", strbuf);
             
                 res = pthread_create(&thread_echo, &attr, time_child_function, (void*)&connfd);
                 if (res != 0) 

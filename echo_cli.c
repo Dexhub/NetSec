@@ -17,7 +17,7 @@ main(int argc, char **argv)
 	struct sockaddr_in	servaddr;
 
 	if (argc != 3) //Third argument for socket
-		err_quit("usage: tcpcli <IPaddress>");
+		err_quit("usage: tcpcli <IPaddress>\n");
 
         pipefd = atoi(argv[2]); // Initialize Global Variable
 
