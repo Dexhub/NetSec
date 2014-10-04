@@ -10,7 +10,7 @@ echo_child_function(void *arg)
         printf("In echo thread\n");
 	str_echo(connfd);		/* same function as before */
 	close(connfd);			/* done with connected socket */
-        printf("Client terminated successfully");
+        printf("Echo client terminated successfully\n");
         pthread_exit(arg);
         exit(0);
 }

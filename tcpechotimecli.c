@@ -110,7 +110,7 @@ int main()
                }
 
            }
-           else // daytime client selected
+           else if (option == 2)// daytime client selected
            {
                int timepid = Fork();
                if (timepid == 0)// Child process
@@ -128,6 +128,9 @@ int main()
                }
 
 
+           }
+           else{
+               break;
            } 
         }
 

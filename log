@@ -1,6 +1,7 @@
 > Daytime client and daytime server
 
 
+Test on server
 
 Done> Use select
 
@@ -17,7 +18,14 @@ gethostby name and addr
 
 -> server
 ->
+>>> If character selcected in optino then it goes in infinite loop
+> restrict the number of threads on the server 
 New child and child died
+
+
+replace make file beofre commit
+
+
 
 Code Quality
 -indentation and fcuntions
