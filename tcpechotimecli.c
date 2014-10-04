@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
 
     if (he != NULL)
     {
-        printf("HEllo");
         if (inet_ntop(AF_INET, he->h_addr, dest_addr, sizeof(dest_addr)) == NULL)
             he = NULL;
     }
@@ -50,14 +49,14 @@ int main(int argc, char *argv[])
     {
         printf("--------------------------------------------------\n");
         printf("\n Choose from the following options\n");
-        printf("\n 1: Echo Client\n 2: Daytime Client\n 3:Exit\n");
+        printf("\n 1: Echo Client\n 2: Daytime Client\n 3: Exit\n");
         printf("--------------------------------------------------\n");
         printf("Selection : ");
         if( scanf("%d",&option) != 1)
         {
+            char temp[SIZE];
+            Fgets(temp, SIZE, stdin);
             printf("Invalid option entererd\n");
-            fgetc(stdin);
-
             continue;
         }
 

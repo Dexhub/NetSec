@@ -22,6 +22,10 @@ main(int argc, char **argv)
        
         pipefd = atoi(argv[2]); // Initialize Global Variable
 
+        printf("-----------------------------\n");
+        printf("\t Day time Client        \n");
+        printf("-----------------------------\n");
+
          // Register signal and signal handler
         signal(SIGINT, signal_callback_handler);
 
