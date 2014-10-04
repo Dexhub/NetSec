@@ -10,7 +10,7 @@ echo_child_function(void *arg)
 {
 	int connfd;
 	connfd = *((int *) arg);
-        printf("In echo thread\n");
+        printf("Fullfiling echo request\n");
 	str_echo(connfd);		/* same function as before */
 	close(connfd);			/* done with connected socket */
         printf("Echo client terminated successfully\n");
@@ -23,7 +23,7 @@ time_child_function(void *arg)
 {
 	int connfd;
 	connfd = *((int *) arg);
-        printf("In time thread\n");
+        printf("Fulfilling time request\n");
 
         fd_set rset;
         FD_ZERO(&rset);
