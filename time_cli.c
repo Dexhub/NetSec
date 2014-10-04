@@ -57,7 +57,16 @@ main(int argc, char **argv)
 		if (fputs(recvline, stdout) == EOF)
 			err_sys("fputs error\n");
 	}
-	if (n < 0)
+
+        if (n == 0)
+        {
+            char error_msg[] = "Server terminated Prematurely!";
+            if (sizeof(error_msg) != (write(pipefd, error_msg,sizeof(error_msg)) ))
+                exit(-1);
+            exit(1);
+        }
+
+        else // n< 0
         {
             char error_msg[] = "Read error";
             if (sizeof(error_msg) != write(pipefd, error_msg,sizeof(error_msg)))

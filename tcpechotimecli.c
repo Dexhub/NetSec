@@ -19,17 +19,14 @@ int main(int argc, char *argv[])
     //Get host name:
     if ( (he = gethostbyname( argv[1] ) ) == NULL)
     {
-         herror("gethostbyname");
-         return 1;
+        printf("Error calling gethostbyname!\n");
+        return 1;
     }
 
     // print information about this host:
     printf("Host name is: %s\n", he->h_name);
     addr_list = (struct in_addr **)he->h_addr_list;
     printf("IP Address: %s \n", inet_ntoa(*addr_list[0]));
-
-
-
 
     printf("-------------- Client Started ------------------------\n");
     while(1)
@@ -70,7 +67,6 @@ int main(int argc, char *argv[])
                 int n = sprintf(pfd_buffer, "%d",pfd[1]); 
                 execlp("xterm","xterm", "-e","./echo_cli", inet_ntoa(*addr_list[0]), pfd_buffer, (char*)0);
                 close(pfd[1]);
-                //  close(pfd[1]); // After child exits -> add in signal handler for ctrl+c
 
             }
             else // Parent Process code
